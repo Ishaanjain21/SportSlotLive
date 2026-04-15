@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportSlot Live | Secure Dashboard</title>
+    <link rel="stylesheet" href="cap prj.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SportSlot Live</h1>
+            <div class="controls">
+                <div class="role-switcher">
+                    <label>View Mode:</label>
+                    <select id="roleSelect" onchange="handleRoleChange()">
+                        <option value="user">User (Booking Only)</option>
+                        <option value="admin">Admin (Full Control)</option>
+                    </select>
+                </div>
+                <div id="adminTimeControl" class="time-control hidden">
+                    <span>Simulated Time: </span>
+                    <input type="number" id="manualHour" min="0" max="23" value="18">
+                    <span>:00</span>
+                </div>
+            </div>
+        </header>
+
+        <section id="userSection" class="panel">
+            <h3>Request a Booking</h3>
+            <form id="bookingForm">
+                <input type="text" id="name" placeholder="Your Name" required>
+                <input type="tel" id="phone" placeholder="Contact Number" required>
+                <select id="sport" onchange="updateCategories()">
+                    <option value="Badminton">Badminton</option>
+                    <option value="TT">Table Tennis</option>
+                    <option value="Swimming">Swimming Pool</option>
+                </select>
+                <select id="category"></select>
+                <select id="slotTime">
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                </select>
+                <button type="submit">Submit Booking</button>
+            </form>
+        </section>
+
+        <section class="board-panel">
+            <h3>Live Status Board</h3>
+            <table>
+                <thead>
+                    <tr id="tableHeader">
+                        <th>Time</th>
+                        <th>Facility</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Member Name</th>
+                    </tr>
+                </thead>
+                <tbody id="memberList"></tbody>
+            </table>
+        </section>
+    </div>
+    <script src="cap prj.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+:root {
+    --primary: #1e40af;
+    --playing: #22c55e;
+    --booked: #f59e0b;
+    --empty: #ef4444;
+}
+
+body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; margin: 0; }
+.container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+.controls { display: flex; gap: 20px; align-items: center; }
+
+.hidden { display: none !important; }
+
+.role-switcher select { padding: 8px; border-radius: 6px; border: 2px solid var(--primary); font-weight: bold; cursor: pointer; }
+
+.time-control { background: #1e293b; color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px; }
+.time-control input { width: 45px; background: transparent; color: white; border: 1px solid #475569; text-align: center; font-weight: bold; }
+
+.panel { background: #eff6ff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #dbeafe; }
+form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+input, select, button { padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; }
+button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+button:hover { background: #1e3a8a; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th { text-align: left; padding: 15px; background: #f8fafc; font-size: 13px; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+
+.row-playing { border-left: 5px solid var(--playing); background: #f0fdf4; }
+.row-booked { border-left: 5px solid var(--booked); background: #fffbeb; }
+.row-empty { border-left: 5px solid var(--empty); background: #fef2f2; }
+
+.status-txt { font-weight: bold; font-size: 12px; }
+.playing-txt { color: var(--playing); }
+.booked-txt { color: var(--booked); }
+.empty-txt { color: var(--empty); }
+
+.del-btn { background: var(--empty); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+.del-btn:hover { background: #b91c1c; }
