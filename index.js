@@ -5,7 +5,7 @@ import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/
 const firebaseConfig = {
   apiKey: "AIzaSyD3wZ7RvG-y34zZH7iCYEXrbubqosDddQY",
   authDomain: "sports-slot-live.firebaseapp.com",
-  databaseURL: "https://sports-slot-live-default-rtdb.firebaseio.com",
+  databaseURL: "https://sportslot-live-default-rtdb.firebaseio.com",
   projectId: "sports-slot-live",
   storageBucket: "sports-slot-live.appspot.com",
   messagingSenderId: "141052035870",
