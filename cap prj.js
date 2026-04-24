@@ -1,32 +1,50 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// Your actual config from the screenshot
+const firebaseConfig = {
+  apiKey: "AIzaSyD3wZ7RvG-y34zZH7iCYEXrbubqosDddQY",
+  authDomain: "sports-slot-live.firebaseapp.com",
+  databaseURL: "https://sports-slot-live-default-rtdb.firebaseio.com",
+  projectId: "sports-slot-live",
+  storageBucket: "sports-slot-live.appspot.com",
+  messagingSenderId: "141052035870",
+  appId: "1:141052035870:web:dcb9dafc2a03de5dd3ff0f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 const categories = {
     "Badminton": ["Court 1", "Court 2"],
     "TT": ["Table A", "Table B"],
-    "Swimming": ["Boys Only", "Girls Only", "Ladies Only", "Family Time"]
+    "Swimming": ["Slot A", "Slot B"]
 };
 
-let systemData = [
-    { time: "18:00", sport: "Badminton", category: "Court 1", member: "Arjun Sharma", phone: "9876543210" },
-    { time: "19:00", sport: "Swimming", category: "Girls Only", member: "Ananya Iyer", phone: "9000011111" }
-];
+let systemData = [];
 
-function handleRoleChange() {
-    const roleSelect = document.getElementById('roleSelect');
-    const selectedRole = roleSelect.value;
+// 1. Listen for Live Data
+onValue(ref(db, 'bookings/'), (snapshot) => {
+    const data = snapshot.val();
+    systemData = data ? Object.values(data) : [];
+    renderBoard();
+});
 
-    if (selectedRole === 'admin') {
-        const password = prompt("Enter Admin Password:");
-        if (password === "123456789") {
-            alert("Login Successful");
+// 2. Role Change Logic (Password)
+document.getElementById('roleSelect').addEventListener('change', (e) => {
+    if (e.target.value === 'admin') {
+        const pass = prompt("Enter Password:");
+        if (pass === "123456789") {
             toggleInterface('admin');
         } else {
-            alert("Incorrect Password!");
-            roleSelect.value = 'user';
+            alert("Wrong!");
+            e.target.value = 'user';
             toggleInterface('user');
         }
     } else {
         toggleInterface('user');
     }
-}
+});
 
 function toggleInterface(role) {
     const adminTime = document.getElementById('adminTimeControl');
@@ -46,19 +64,7 @@ function toggleInterface(role) {
     renderBoard();
 }
 
-function updateCategories() {
-    const sport = document.getElementById('sport').value;
-    const catSelect = document.getElementById('category');
-    catSelect.innerHTML = categories[sport].map(c => `<option value="${c}">${c}</option>`).join('');
-}
-
-function deleteBooking(time, sport, category) {
-    if(confirm("Are you sure you want to cancel this booking?")) {
-        systemData = systemData.filter(d => !(d.time === time && d.sport === sport && d.category === category));
-        renderBoard();
-    }
-}
-
+// 3. Render Dashboard
 function renderBoard() {
     const list = document.getElementById('memberList');
     const role = document.getElementById('roleSelect').value;
@@ -76,51 +82,52 @@ function renderBoard() {
                 let status = 'empty', rowClass = 'row-empty', statusLabel = 'AVAILABLE';
 
                 if (booking) {
-                    if (currentHour === hour) { 
-                        status = 'playing'; rowClass = 'row-playing'; statusLabel = 'PLAYING';
-                    } else if (currentHour < hour) { 
-                        status = 'booked'; rowClass = 'row-booked'; statusLabel = 'BOOKED';
-                    }
+                    if (currentHour === hour) { status = 'playing'; rowClass = 'row-playing'; statusLabel = 'PLAYING'; }
+                    else if (currentHour < hour) { status = 'booked'; rowClass = 'row-booked'; statusLabel = 'BOOKED'; }
                 }
 
                 let rowHTML = `<tr class="${rowClass}">
-                    <td>${t}</td>
-                    <td>${f}</td>
-                    <td>${cat}</td>
+                    <td>${t}</td><td>${f}</td><td>${cat}</td>
                     <td class="status-txt ${status}-txt">${statusLabel}</td>
-                    <td>${(booking && status !== 'empty') ? booking.member : '—'}</td>`;
+                    <td>${booking ? booking.member : '—'}</td>`;
 
                 if (role === 'admin') {
                     rowHTML += `<td>${booking ? booking.phone : '—'}</td>`;
                     rowHTML += `<td>${booking ? `<button class="del-btn" onclick="deleteBooking('${t}','${f}','${cat}')">Cancel</button>` : '—'}</td>`;
                 }
-                rowHTML += `</tr>`;
-                list.innerHTML += rowHTML;
+                list.innerHTML += rowHTML + `</tr>`;
             });
         });
     });
 }
 
-document.getElementById('bookingForm').addEventListener('submit', function(e) {
+// 4. Booking and Deletion (Firebase)
+document.getElementById('bookingForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const entry = {
-        time: document.getElementById('slotTime').value,
-        sport: document.getElementById('sport').value,
-        category: document.getElementById('category').value,
+    const time = document.getElementById('slotTime').value;
+    const sport = document.getElementById('sport').value;
+    const category = document.getElementById('category').value;
+    const slotId = `${time}-${sport}-${category}`.replace(/\s+/g, '');
+
+    set(ref(db, 'bookings/' + slotId), {
+        time, sport, category,
         member: document.getElementById('name').value,
         phone: document.getElementById('phone').value
-    };
-
-    const exists = systemData.some(s => s.time === entry.time && s.sport === entry.sport && s.category === entry.category);
-    if (exists) alert("Slot already taken!");
-    else {
-        systemData.push(entry);
-        renderBoard();
-        this.reset();
-        alert("Booking confirmed!");
-    }
+    });
+    e.target.reset();
 });
 
+window.deleteBooking = (t, s, c) => {
+    const slotId = `${t}-${s}-${c}`.replace(/\s+/g, '');
+    if(confirm("Cancel booking?")) remove(ref(db, 'bookings/' + slotId));
+};
+
+// 5. Setup View
+document.getElementById('sport').addEventListener('change', updateCats);
+function updateCats() {
+    const s = document.getElementById('sport').value;
+    document.getElementById('category').innerHTML = categories[s].map(c => `<option value="${c}">${c}</option>`).join('');
+}
 document.getElementById('manualHour').addEventListener('input', renderBoard);
-updateCategories();
-toggleInterface('user');
+updateCats();
+renderBoard();
