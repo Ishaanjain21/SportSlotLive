@@ -38,4 +38,3 @@ td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 .empty-txt { color: var(--empty); }
 
 .del-btn { background: var(--empty); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-.del-btn:hover { background: #b91c1c; }
