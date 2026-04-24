@@ -1,17 +1,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Your actual config from the screenshot
+// Your verified Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD3wZ7RvG-y34zZH7iCYEXrbubqosDddQY",
   authDomain: "sports-slot-live.firebaseapp.com",
-  databaseURL: "https://sportslot-live-default-rtdb.firebaseio.com",
+  databaseURL: "https://sportslot-live-default-rtdb.firebaseio.com/", 
   projectId: "sports-slot-live",
   storageBucket: "sports-slot-live.appspot.com",
   messagingSenderId: "141052035870",
   appId: "1:141052035870:web:dcb9dafc2a03de5dd3ff0f"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -23,21 +24,21 @@ const categories = {
 
 let systemData = [];
 
-// 1. Listen for Live Data
+// 1. Listen for Live Data from Cloud
 onValue(ref(db, 'bookings/'), (snapshot) => {
     const data = snapshot.val();
     systemData = data ? Object.values(data) : [];
     renderBoard();
 });
 
-// 2. Role Change Logic (Password)
+// 2. Admin Login Logic
 document.getElementById('roleSelect').addEventListener('change', (e) => {
     if (e.target.value === 'admin') {
-        const pass = prompt("Enter Password:");
+        const pass = prompt("Enter Admin Password:");
         if (pass === "123456789") {
             toggleInterface('admin');
         } else {
-            alert("Wrong!");
+            alert("Access Denied!");
             e.target.value = 'user';
             toggleInterface('user');
         }
@@ -64,7 +65,7 @@ function toggleInterface(role) {
     renderBoard();
 }
 
-// 3. Render Dashboard
+// 3. Render the Dashboard
 function renderBoard() {
     const list = document.getElementById('memberList');
     const role = document.getElementById('roleSelect').value;
@@ -101,7 +102,7 @@ function renderBoard() {
     });
 }
 
-// 4. Booking and Deletion (Firebase)
+// 4. Send Data to Firebase
 document.getElementById('bookingForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const time = document.getElementById('slotTime').value;
@@ -115,14 +116,18 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
         phone: document.getElementById('phone').value
     });
     e.target.reset();
+    alert("Booking Submitted Successfully!");
 });
 
+// 5. Delete Data from Firebase
 window.deleteBooking = (t, s, c) => {
     const slotId = `${t}-${s}-${c}`.replace(/\s+/g, '');
-    if(confirm("Cancel booking?")) remove(ref(db, 'bookings/' + slotId));
+    if(confirm("Confirm Cancellation?")) {
+        remove(ref(db, 'bookings/' + slotId));
+    }
 };
 
-// 5. Setup View
+// Initialization
 document.getElementById('sport').addEventListener('change', updateCats);
 function updateCats() {
     const s = document.getElementById('sport').value;
